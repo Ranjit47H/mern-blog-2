@@ -1,22 +1,33 @@
 import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  signInStart,
+  signinSuccess,
+  signinFailure,
+} from "../redux/user/userSlice";
 const SignIn = () => {
   const [formData, setFormData] = useState({});
-  const [errorMess, setErrorMess] = useState(null);
-  const [loading, setLoding] = useState(false);
+  const { loading, error: errorMessage } = useSelector((state) => state.user);
+  const [showPassword, setShowPassword] = useState(false);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.password || !formData.email) {
-      return setErrorMess("Please fill all the fields");
+      return dispatch(signinFailure("please fill all the fields"));
     }
     try {
-      setLoding(true);
-      setErrorMess(null);
+      dispatch(signInStart());
       const res = await fetch("/api/auth/signin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -24,15 +35,14 @@ const SignIn = () => {
       });
       const data = await res.json();
       if (data.success === false) {
-        setErrorMess(data.message);
+        dispatch(signinFailure(data.message));
       }
-      setLoding(false);
       if (res.ok) {
+        dispatch(signinSuccess(data));
         navigate("/");
       }
     } catch (error) {
-      setErrorMess(error.message);
-      setLoding(false);
+      dispatch(signinFailure(error.message));
     }
   };
   return (
@@ -64,12 +74,21 @@ const SignIn = () => {
             </div>
             <div>
               <Label value="Your Password" />
-              <TextInput
-                type="password"
-                placeholder="********"
-                id="password"
-                onChange={handleChange}
-              />
+              <div className="relative">
+                <TextInput
+                  type={showPassword ? "text" : "password"}
+                  placeholder="********"
+                  id="password"
+                  onChange={handleChange}
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 px-3 py-2"
+                  onClick={togglePasswordVisibility}
+                >
+                  <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} />
+                </button>
+              </div>
             </div>
             <Button
               gradientDuoTone="purpleToPink"
@@ -92,9 +111,9 @@ const SignIn = () => {
               Sign Up
             </Link>
           </div>
-          {errorMess && (
+          {errorMessage && (
             <Alert className="mt-5" color="failure">
-              {errorMess}
+              {errorMessage}
             </Alert>
           )}
         </div>
