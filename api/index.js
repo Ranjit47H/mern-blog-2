@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import userRoutes from "./routes/user.route.js";
 import authRoutes from "./routes/auth.route.js";
+import cors from "cors";
 dotenv.config();
 
 mongoose
@@ -15,6 +16,11 @@ mongoose
   });
 const app = express();
 app.use(express.json());
+app.use(
+  cors({
+    origin: "http://localhost:5173/signin",
+  })
+);
 app.listen(3000, () => {
   console.log("server listening on");
 });

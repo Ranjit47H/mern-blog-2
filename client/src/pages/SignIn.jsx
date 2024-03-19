@@ -6,9 +6,10 @@ import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { useDispatch, useSelector } from "react-redux";
 import {
   signInStart,
-  signinSuccess,
-  signinFailure,
+  signInSuccess,
+  signInFailure,
 } from "../redux/user/userSlice";
+import OAuth from "../components/OAuth";
 const SignIn = () => {
   const [formData, setFormData] = useState({});
   const { loading, error: errorMessage } = useSelector((state) => state.user);
@@ -24,7 +25,7 @@ const SignIn = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.password || !formData.email) {
-      return dispatch(signinFailure("please fill all the fields"));
+      return dispatch(signInFailure("please fill all the fields"));
     }
     try {
       dispatch(signInStart());
@@ -35,14 +36,14 @@ const SignIn = () => {
       });
       const data = await res.json();
       if (data.success === false) {
-        dispatch(signinFailure(data.message));
+        dispatch(signInFailure(data.message));
       }
       if (res.ok) {
-        dispatch(signinSuccess(data));
+        dispatch(signInSuccess(data));
         navigate("/");
       }
     } catch (error) {
-      dispatch(signinFailure(error.message));
+      dispatch(signInFailure(error.message));
     }
   };
   return (
@@ -104,6 +105,7 @@ const SignIn = () => {
                 "Sign In"
               )}
             </Button>
+            <OAuth />
           </form>
           <div className="flex-gap-2 text-sm mt-5">
             <span> Don&apos;t Have an Account?</span>
