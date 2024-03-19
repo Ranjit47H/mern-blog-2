@@ -16,11 +16,11 @@ mongoose
   });
 const app = express();
 app.use(express.json());
-app.use(
-  cors({
-    origin: "http://localhost:5173/signin",
-  })
-);
+// app.use(
+//   cors({
+//     origin: "http://localhost:5173/signin",
+//   })
+// );
 app.listen(3000, () => {
   console.log("server listening on");
 });
